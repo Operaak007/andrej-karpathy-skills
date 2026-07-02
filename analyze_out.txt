@@ -1,0 +1,46 @@
+Analyzing ak_api_test...                                        
+
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:35:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:53:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:105:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:108:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:216:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:230:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:233:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:264:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:282:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:285:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:305:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:317:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:320:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:330:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:339:7 - avoid_print
+warning - The member 'emit' can only be used within 'package:bloc/src/bloc.dart' or a test - lib\bloc\auth\auth_bloc.dart:350:9 - invalid_use_of_visible_for_testing_member
+   info - Don't invoke 'print' in production code - lib\bloc\auth\auth_bloc.dart:353:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:28:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:34:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:52:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:56:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:59:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:280:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:286:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:309:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\bloc\wallet\wallet_bloc.dart:335:7 - avoid_print
+warning - Unused import: 'package:flutter/material.dart' - lib\config\api_config.dart:3:8 - unused_import
+   info - Unnecessary use of multiple underscores - lib\screens\home\cards_list_screen.dart:236:29 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\home\history_screen.dart:101:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\home\history_screen.dart:102:41 - deprecated_member_use
+warning - The declaration '_buildBalanceCard' isn't referenced - lib\screens\home\home_screen.dart:227:10 - unused_element
+warning - The declaration '_buildActionButtons' isn't referenced - lib\screens\home\home_screen.dart:343:10 - unused_element
+warning - The declaration '_buildQuickActions' isn't referenced - lib\screens\home\home_screen.dart:420:10 - unused_element
+   info - An uninitialized field should have an explicit type annotation - lib\screens\home\home_screen.dart:1166:9 - prefer_typing_uninitialized_variables
+   info - Missing type annotation - lib\screens\home\home_screen.dart:1166:9 - strict_top_level_inference
+   info - The variable name 'AppColors' isn't a lowerCamelCase identifier - lib\screens\home\home_screen.dart:1166:9 - non_constant_identifier_names
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\home\send_money_screen.dart:216:27 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\home\send_money_screen.dart:217:27 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\home\send_money_screen.dart:228:27 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\home\send_money_screen.dart:229:27 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\services\api_service.dart:34:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\api_service.dart:53:7 - avoid_print
+   info - Constructors for public widgets should have a named 'key' parameter - lib\util\widget\page_dot_widget.dart:5:9 - use_key_in_widget_constructors
+
