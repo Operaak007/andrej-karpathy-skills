@@ -137,6 +137,31 @@ class CardToggled extends WalletState {
   List<Object?> get props => [message, cardId, isActive];
 }
 
+class CardFunded extends WalletState {
+  final String message;
+  final int cardId;
+  final int amount;
+  final int cardBalance;
+  final int walletBalance;
+
+  const CardFunded({
+    required this.message,
+    required this.cardId,
+    required this.amount,
+    required this.cardBalance,
+    required this.walletBalance,
+  });
+
+  @override
+  List<Object?> get props => [
+    message,
+    cardId,
+    amount,
+    cardBalance,
+    walletBalance,
+  ];
+}
+
 class WalletError extends WalletState {
   final String message;
 

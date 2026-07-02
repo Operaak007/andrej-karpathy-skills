@@ -52,6 +52,19 @@ class CardStorage {
     await prefs.setString(_key, jsonEncode(cards));
   }
 
+  /// Updates the balance of a card in local storage.
+  static Future<void> updateCardBalance(int cardId, int balance) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cards = await _loadAll(prefs);
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i]['id']?.toString() == cardId.toString()) {
+        cards[i]['balance'] = balance;
+        break;
+      }
+    }
+    await prefs.setString(_key, jsonEncode(cards));
+  }
+
   static List<Map<String, dynamic>> _loadAll(SharedPreferences prefs) {
     final raw = prefs.getString(_key);
     if (raw == null || raw.isEmpty) return [];

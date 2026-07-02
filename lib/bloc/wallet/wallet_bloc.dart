@@ -19,6 +19,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<LoadCards>(_onLoadCards);
     on<DeleteCard>(_onDeleteCard);
     on<ToggleCardStatus>(_onToggleCardStatus);
+    on<FundCard>(_onFundCard);
   }
 
   Future<void> _onLoadBalance(
@@ -528,6 +529,46 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       );
 
       // Reload cards to reflect the change
+      add(LoadCards());
+    } on ApiException catch (e) {
+      emit(WalletError(e.message));
+    } catch (e) {
+      emit(WalletError(e.toString()));
+    }
+  }
+
+  Future<void> _onFundCard(FundCard event, Emitter<WalletState> emit) async {
+    emit(WalletLoading());
+    try {
+      final response = await _apiService.post(
+        '/card/fund',
+        body: {'card_id': event.cardId, 'amount': event.amount},
+      );
+      print('Fund Card Response: $response'); // Debug log
+
+      final data = response.containsKey('data')
+          ? response['data'] as Map<String, dynamic>
+          : response;
+
+      final cardBalance = _parseBalance(
+        data['card_balance'] ?? data['balance'] ?? data['new_balance'],
+      );
+      final walletBalance = _parseBalance(data['wallet_balance']);
+
+      // Update local storage balance if card is saved locally
+      await CardStorage.updateCardBalance(event.cardId, cardBalance);
+
+      emit(
+        CardFunded(
+          message: data['message'] ?? 'Card funded successfully',
+          cardId: event.cardId,
+          amount: event.amount,
+          cardBalance: cardBalance,
+          walletBalance: walletBalance,
+        ),
+      );
+
+      // Reload cards to reflect the new balance
       add(LoadCards());
     } on ApiException catch (e) {
       emit(WalletError(e.message));

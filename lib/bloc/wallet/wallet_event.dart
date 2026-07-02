@@ -117,3 +117,13 @@ class ToggleCardStatus extends WalletEvent {
   @override
   List<Object?> get props => [cardId, currentStatus];
 }
+
+class FundCard extends WalletEvent {
+  final int cardId;
+  final int amount;
+
+  const FundCard({required this.cardId, required this.amount});
+
+  @override
+  List<Object?> get props => [cardId, amount];
+}

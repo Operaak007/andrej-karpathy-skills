@@ -8,6 +8,7 @@ import '../../bloc/wallet/wallet_event.dart';
 import '../../bloc/wallet/wallet_state.dart';
 import '../../constants.dart';
 import 'generate_card_screen.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CardsListScreen extends StatefulWidget {
   const CardsListScreen({super.key});
@@ -32,6 +33,14 @@ class _CardsListScreenState extends State<CardsListScreen> {
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
     );
+  }
+
+  String _formatCardNumber(String number) {
+    final digits = number.replaceAll(RegExp(r'\s+'), '');
+    if (digits.isEmpty) return '';
+    return digits
+        .replaceAllMapped(RegExp(r'(\d{4})(?=\d)'), (Match m) => '${m[1]} ')
+        .trim();
   }
 
   Color _brandColor(String brand) {
@@ -141,6 +150,16 @@ class _CardsListScreenState extends State<CardsListScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
+                backgroundColor: AppColors.mint,
+              ),
+            );
+          }
+          if (state is CardFunded) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '${state.message}. Card: ₦${_formatBalance(state.cardBalance)} • Wallet: ₦${_formatBalance(state.walletBalance)}',
+                ),
                 backgroundColor: AppColors.mint,
               ),
             );
@@ -274,6 +293,7 @@ class _CardsListScreenState extends State<CardsListScreen> {
     final balance = _parseInt(card['balance']);
     final createdAt = _formatDate(card['created_at']?.toString());
     final brandColor = _brandColor(brand);
+    final cvv = (card['cvv'] ?? '').toString();
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),
@@ -346,7 +366,9 @@ class _CardsListScreenState extends State<CardsListScreen> {
             ),
             const SizedBox(height: 18),
             Text(
-              number.isEmpty ? '•••• •••• •••• ••••' : number,
+              number.isEmpty
+                  ? '•••• •••• •••• ••••'
+                  : _formatCardNumber(number),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -365,6 +387,9 @@ class _CardsListScreenState extends State<CardsListScreen> {
                         ? '--/--'
                         : '$month/$year',
                   ),
+                ),
+                Expanded(
+                  child: _buildInfoColumn(label: 'CVV', value: "$cvv"),
                 ),
                 Expanded(
                   child: _buildInfoColumn(
@@ -423,6 +448,7 @@ class _CardsListScreenState extends State<CardsListScreen> {
     final balance = _parseInt(card['balance']);
     final createdAt = _formatDate(card['created_at']?.toString());
     final id = card['id']?.toString() ?? '';
+    final cvv = (card['cvv'] ?? '').toString();
 
     showModalBottomSheet(
       context: context,
@@ -474,8 +500,15 @@ class _CardsListScreenState extends State<CardsListScreen> {
                 _buildDetailRow(
                   context: sheetContext,
                   label: 'Card Number',
-                  value: number.isEmpty ? '--' : number,
+                  value: number.isEmpty ? '--' : _formatCardNumber(number),
                   icon: Icons.numbers,
+                  copyable: true,
+                ),
+                _buildDetailRow(
+                  context: sheetContext,
+                  label: 'CVV',
+                  value: cvv.isEmpty ? '--' : cvv,
+                  icon: Icons.lock_outline,
                   copyable: true,
                 ),
                 _buildDetailRow(
@@ -495,7 +528,7 @@ class _CardsListScreenState extends State<CardsListScreen> {
                 _buildDetailRow(
                   context: sheetContext,
                   label: 'Status',
-                  value: isActive ? 'Active' : 'Inactive',
+                  value: isActive ? 'InActive' : 'Active',
                   icon: Icons.toggle_on,
                 ),
                 _buildDetailRow(
@@ -557,9 +590,134 @@ class _CardsListScreenState extends State<CardsListScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      _fundCard(card);
+                    },
+                    icon: const Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Fund Card',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mint,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void _fundCard(Map<String, dynamic> card) {
+    final cardId = _parseInt(card['id']);
+    if (cardId == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid card id'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final amountController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface,
+          title: const Text('Fund Card', style: TextStyle(color: Colors.white)),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Enter the amount to fund card #${card['card_number']?.toString() ?? cardId.toString()}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Amount (₦)',
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    prefixIcon: const Icon(
+                      Icons.attach_money,
+                      color: AppColors.mint,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.white24),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: AppColors.mint),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    final amount = int.tryParse(value.trim());
+                    if (amount == null) {
+                      return 'Enter a valid number';
+                    }
+                    if (amount <= 0) {
+                      return 'Amount must be greater than 0';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  final amount = int.parse(amountController.text.trim());
+                  Navigator.pop(dialogContext);
+                  context.read<WalletBloc>().add(
+                    FundCard(cardId: cardId, amount: amount),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.mint,
+                foregroundColor: Colors.black,
+              ),
+              child: const Text('Fund'),
+            ),
+          ],
         );
       },
     );
