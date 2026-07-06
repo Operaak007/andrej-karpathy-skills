@@ -173,8 +173,9 @@ class _CardsListScreenState extends State<CardsListScreen> {
             );
           }
           if (state is WalletLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.mint),
+            return RefreshIndicator(
+              onRefresh: () async => _loadCards(),
+              child: _buildLoadingShimmers(),
             );
           }
           if (state is WalletError) {
@@ -220,13 +221,7 @@ class _CardsListScreenState extends State<CardsListScreen> {
           }
           return RefreshIndicator(
             onRefresh: () async => _loadCards(),
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: const [
-                SizedBox(height: 200),
-                Center(child: CircularProgressIndicator(color: AppColors.mint)),
-              ],
-            ),
+            child: _buildLoadingShimmers(),
           );
         },
       ),
@@ -407,6 +402,86 @@ class _CardsListScreenState extends State<CardsListScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingShimmers() {
+    return Shimmer.fromColors(
+      baseColor: Colors.white12,
+      highlightColor: Colors.white24,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        itemCount: 3,
+        separatorBuilder: (_, __) => const SizedBox(height: 14),
+        itemBuilder: (context, index) {
+          return Container(
+            height: 180,
+            decoration: BoxDecoration(
+              color: Colors.white12,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 120,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  width: double.infinity,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Expanded(
+                  child: Row(
+                    children: List.generate(
+                      4,
+                      (_) => Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                width: double.infinity,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

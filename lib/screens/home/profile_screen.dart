@@ -828,6 +828,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : _isEditing
                 ? _buildEditForm()
                 : _buildProfileView(profile, isUploading: isUploading),
+                
           );
         },
       ),
@@ -1298,8 +1299,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Text('Save'),
                 ),
               ),
+
             ],
           ),
+          
         ],
       ),
     );

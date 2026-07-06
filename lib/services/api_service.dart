@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import '../config/api_config.dart';
 
 class ApiException implements Exception {
@@ -48,10 +50,16 @@ class ApiService {
     return headers;
   }
 
+  http.Client _createClient() {
+    final httpClient = HttpClient()..findProxy = (uri) => 'DIRECT';
+    return IOClient(httpClient);
+  }
+
   Future<Map<String, dynamic>> get(String endpoint) async {
+    final client = _createClient();
     try {
       print('ApiService.get - Token: $_token'); // Debug log
-      final response = await http
+      final response = await client
           .get(Uri.parse('${ApiConfig.baseUrl}$endpoint'), headers: _headers)
           .timeout(ApiConfig.timeout);
 
@@ -60,6 +68,8 @@ class ApiService {
       rethrow;
     } catch (e) {
       throw ApiException('Network error: $e');
+    } finally {
+      client.close();
     }
   }
 
@@ -67,10 +77,11 @@ class ApiService {
     String endpoint, {
     Map<String, dynamic>? body,
   }) async {
+    final client = _createClient();
     try {
       final requestBody = _addTokenToBody(body);
       final encoded = requestBody != null ? jsonEncode(requestBody) : null;
-      final response = await http
+      final response = await client
           .post(
             Uri.parse('${ApiConfig.baseUrl}$endpoint'),
             headers: _headers,
@@ -83,6 +94,8 @@ class ApiService {
       rethrow;
     } catch (e) {
       throw ApiException('Network error: $e');
+    } finally {
+      client.close();
     }
   }
 
@@ -90,8 +103,9 @@ class ApiService {
     String endpoint, {
     required Map<String, String> body,
   }) async {
+    final client = _createClient();
     try {
-      final response = await http
+      final response = await client
           .post(
             Uri.parse('${ApiConfig.baseUrl}$endpoint'),
             headers: _formHeaders,
@@ -104,6 +118,8 @@ class ApiService {
       rethrow;
     } catch (e) {
       throw ApiException('Network error: $e');
+    } finally {
+      client.close();
     }
   }
 
@@ -111,10 +127,11 @@ class ApiService {
     String endpoint, {
     Map<String, dynamic>? body,
   }) async {
+    final client = _createClient();
     try {
       final requestBody = _addTokenToBody(body);
       final encoded = requestBody != null ? jsonEncode(requestBody) : null;
-      final response = await http
+      final response = await client
           .put(
             Uri.parse('${ApiConfig.baseUrl}$endpoint'),
             headers: _headers,
@@ -127,6 +144,8 @@ class ApiService {
       rethrow;
     } catch (e) {
       throw ApiException('Network error: $e');
+    } finally {
+      client.close();
     }
   }
 
@@ -135,6 +154,7 @@ class ApiService {
     required String filePath,
     required String fieldName,
   }) async {
+    final client = _createClient();
     try {
       final uri = Uri.parse('${ApiConfig.baseUrl}$endpoint');
       final request = http.MultipartRequest('POST', uri);
@@ -148,7 +168,9 @@ class ApiService {
       // Add file
       request.files.add(await http.MultipartFile.fromPath(fieldName, filePath));
 
-      final streamedResponse = await request.send().timeout(ApiConfig.timeout);
+      final streamedResponse = await client
+          .send(request)
+          .timeout(ApiConfig.timeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       return _handleResponse(response);
@@ -156,6 +178,8 @@ class ApiService {
       rethrow;
     } catch (e) {
       throw ApiException('Network error: $e');
+    } finally {
+      client.close();
     }
   }
 
