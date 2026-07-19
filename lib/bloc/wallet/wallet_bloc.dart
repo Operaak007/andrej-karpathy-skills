@@ -14,6 +14,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<DepositMoney>(_onDepositMoney);
     on<LoadTransactionHistory>(_onLoadTransactionHistory);
     on<LoadReceivedMoney>(_onLoadReceivedMoney);
+    on<LoadRecentTransactions>(_onLoadRecentTransactions);
+    on<LoadNotifications>(_onLoadNotifications);
+    on<LoadNotificationDetail>(_onLoadNotificationDetail);
     on<VerifyUser>(_onVerifyUser);
     on<GenerateCard>(_onGenerateCard);
     on<LoadCards>(_onLoadCards);
@@ -236,33 +239,119 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     }
   }
 
-  Future<void> _onVerifyUser(
-    VerifyUser event,
+  Future<void> _onLoadRecentTransactions(
+    LoadRecentTransactions event,
+    Emitter<WalletState> emit,
+  ) async {
+    try {
+      final response = await _apiService.post('/wallet/recent');
+      final data = response.containsKey('data')
+          ? response['data'] as Map<String, dynamic>
+          : response;
+      final recent = data['recent'] as List<dynamic>? ?? [];
+      emit(RecentTransactionsLoaded(recent));
+    } catch (e) {
+      print('Failed to load recent transactions: $e');
+    }
+  }
+
+  Future<void> _onLoadNotifications(
+    LoadNotifications event,
     Emitter<WalletState> emit,
   ) async {
     emit(WalletLoading());
     try {
-      final body = <String, dynamic>{};
-      if (event.email != null) body['email'] = event.email;
-      if (event.phone != null) body['phone'] = event.phone;
+      final response = await _apiService.post('/wallet/notifications');
+      final data = response.containsKey('data')
+          ? response['data'] as Map<String, dynamic>
+          : response;
+      final notifications = data['notifications'] as List<dynamic>? ?? [];
+      emit(NotificationsLoaded(notifications));
+    } catch (e) {
+      print('Failed to load notifications: $e');
+      emit(WalletError('Unable to load notifications'));
+    }
+  }
 
+  Future<void> _onLoadNotificationDetail(
+    LoadNotificationDetail event,
+    Emitter<WalletState> emit,
+  ) async {
+    emit(WalletLoading());
+    try {
       final response = await _apiService.post(
+        '/wallet/notification',
+        body: {'transaction_id': event.transactionId},
+      );
+      final data = response.containsKey('data')
+          ? response['data'] as Map<String, dynamic>
+          : response;
+      final notification = data['notification'] as Map<String, dynamic>? ?? {};
+      emit(NotificationDetailLoaded(notification));
+    } catch (e) {
+      print('Failed to load notification detail: $e');
+      emit(WalletError('Unable to load notification detail'));
+    }
+  }
+
+  Future<void> _onVerifyUser(
+    VerifyUser event,
+    Emitter<WalletState> emit,
+  ) async {
+    if ((event.email == null || event.email!.trim().isEmpty) &&
+        (event.phone == null || event.phone!.trim().isEmpty)) {
+      emit(
+        const WalletError('Please enter recipient email or phone to verify.'),
+      );
+      return;
+    }
+
+    emit(WalletLoading());
+    try {
+      final body = <String, dynamic>{};
+      if (event.email != null && event.email!.trim().isNotEmpty) {
+        body['email'] = event.email!.trim();
+      }
+      if (event.phone != null && event.phone!.trim().isNotEmpty) {
+        body['phone'] = event.phone!.trim();
+      }
+
+      final response = await _apiService.postForm(
         '/wallet/verify-user',
-        body: body,
+        body: body.map((key, value) => MapEntry(key, value.toString())),
       );
 
-      if (response['verified'] == true && response['user'] != null) {
-        final user = response['user'] as Map<String, dynamic>;
+      print('VerifyUser response: $response'); // Debug log
+
+      final rawData = response.containsKey('data')
+          ? response['data'] as Map<String, dynamic>
+          : <String, dynamic>{};
+      final data = <String, dynamic>{...response, ...rawData};
+
+      final verified = data['verified'];
+      final bool isVerified =
+          verified == true ||
+          verified == 'true' ||
+          verified == '1' ||
+          verified == 1 ||
+          verified == 'yes';
+
+      if (isVerified && data['user'] != null) {
+        final user = Map<String, dynamic>.from(data['user'] as Map);
         emit(
           UserVerified(
-            userId: user['id'].toString(),
-            userName: user['name'] as String,
-            userEmail: user['email'] as String,
-            userPhone: user['phone'] as String,
+            userId: user['id']?.toString() ?? '',
+            userName: user['name']?.toString() ?? 'Recipient',
+            userEmail: user['email']?.toString() ?? '',
+            userPhone: user['phone']?.toString() ?? '',
           ),
         );
       } else {
-        emit(const WalletError('User not found'));
+        final message =
+            data['message']?.toString() ??
+            data['error']?.toString() ??
+            'User not found';
+        emit(WalletError(message));
       }
     } on ApiException catch (e) {
       emit(WalletError(e.message));

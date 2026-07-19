@@ -78,6 +78,19 @@ class LoadTransactionHistory extends WalletEvent {}
 
 class LoadReceivedMoney extends WalletEvent {}
 
+class LoadRecentTransactions extends WalletEvent {}
+
+class LoadNotifications extends WalletEvent {}
+
+class LoadNotificationDetail extends WalletEvent {
+  final int transactionId;
+
+  const LoadNotificationDetail(this.transactionId);
+
+  @override
+  List<Object?> get props => [transactionId];
+}
+
 class VerifyUser extends WalletEvent {
   final String? email;
   final String? phone;

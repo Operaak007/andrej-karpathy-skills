@@ -58,6 +58,33 @@ class ReceivedMoneyLoaded extends WalletState {
   List<Object?> get props => [received];
 }
 
+class RecentTransactionsLoaded extends WalletState {
+  final List<dynamic> recent;
+
+  const RecentTransactionsLoaded(this.recent);
+
+  @override
+  List<Object?> get props => [recent];
+}
+
+class NotificationsLoaded extends WalletState {
+  final List<dynamic> notifications;
+
+  const NotificationsLoaded(this.notifications);
+
+  @override
+  List<Object?> get props => [notifications];
+}
+
+class NotificationDetailLoaded extends WalletState {
+  final Map<String, dynamic> notification;
+
+  const NotificationDetailLoaded(this.notification);
+
+  @override
+  List<Object?> get props => [notification];
+}
+
 class UserVerified extends WalletState {
   final String userId;
   final String userName;

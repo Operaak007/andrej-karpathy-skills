@@ -2,6 +2,7 @@
 
 import 'package:ak_api_test/constants.dart';
 import 'package:ak_api_test/screens/home/profile_screen.dart';
+import 'package:ak_api_test/screens/home/settings_screen.dart';
 import 'package:ak_api_test/util/widget/page_dot_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +16,8 @@ import '../../bloc/wallet/wallet_state.dart';
 import 'send_money_screen.dart';
 import 'deposit_screen.dart';
 import 'history_screen.dart';
+import 'notification_detail_screen.dart';
+import 'notification_list_screen.dart';
 import 'generate_card_screen.dart';
 import 'cards_list_screen.dart';
 
@@ -32,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const HomeContent(),
     const HistoryScreen(),
     const ProfileScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -49,6 +53,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );
@@ -155,24 +163,32 @@ class _HomeContentState extends State<HomeContent> {
 
         return Row(
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.secondaryPurple,
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF4A3B2E), Color(0xFFB3A58C)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                );
+              },
+              child: CircleAvatar(
+                radius: 20,
+                backgroundColor: AppColors.secondaryPurple,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF4A3B2E), Color(0xFFB3A58C)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  name.characters.first,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                  alignment: Alignment.center,
+                  child: Text(
+                    name.characters.first,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
@@ -192,32 +208,42 @@ class _HomeContentState extends State<HomeContent> {
             ),
             _buildTopIcon(Icons.headphones_outlined),
             const SizedBox(width: 14),
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                _buildTopIcon(Icons.notifications_none_rounded),
-                Positioned(
-                  right: -3,
-                  top: -7,
-                  child: Container(
-                    height: 18,
-                    width: 18,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFF303E),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '2',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationListScreen(),
+                  ),
+                );
+              },
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _buildTopIcon(Icons.notifications_none_rounded),
+                  Positioned(
+                    right: -3,
+                    top: -7,
+                    child: Container(
+                      height: 18,
+                      width: 18,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF303E),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Text(
+                        '2',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         );
@@ -794,18 +820,18 @@ class _HomeContentState extends State<HomeContent> {
 
   Widget _buildTransferGrid() {
     final items = [
-      _ActionItem(
-        Icons.account_balance,
-        'To Bank',
-        AppColors.violet,
-        '0 Fee',
-        () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SendMoneyScreen()),
-          );
-        },
-      ),
+      // _ActionItem(
+      //   Icons.account_balance,
+      //   'To Bank',
+      //   AppColors.violet,
+      //   '0 Fee',
+      //   () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (_) => const SendMoneyScreen()),
+      //     );
+      //   },
+      // ),
       _ActionItem(
         Icons.wallet_rounded,
         'To Wallet',
@@ -825,12 +851,7 @@ class _HomeContentState extends State<HomeContent> {
         null,
         () {},
       ),
-      _ActionItem(Icons.card_giftcard, "ATM CARD", AppColors.purple, null, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const GenerateCardScreen()),
-        );
-      }),
+
       _ActionItem(Icons.credit_card, "MY CARDS", AppColors.mint, null, () {
         Navigator.push(
           context,
